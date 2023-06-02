@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum Role {
+  user
+  admin
+}
+
+model User {
+  id             String        @id @unique @default(uuid())
+  fullName       String
+  email          String        @unique
+  phoneNumber    String        @unique
+  hashedPassword String
+  role           Role          @default(user)
+  appointment    Appointment[]
+}
+
+model Poli {
+  id       String   @id @unique @default(uuid())
+  poliName String   @unique
+  poliSlug String   @unique
+  doctor   Doctor[]
+}
+
+model Doctor {
+  id          String        @id @default(uuid())
+  fullName    String
+  phoneNumber String?
+  avatarUrl   String?
+  schedule    Json
+  poli        Poli?         @relation(fields: [poliId], references: [id])
+  poliId      String?
+  appointment Appointment[]
+}
+
+model Appointment {
+  id       String @id
+  schedule String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+}
