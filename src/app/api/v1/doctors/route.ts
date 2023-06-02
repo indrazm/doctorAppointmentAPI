@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prismaClient"
 
 export async function GET(req: NextRequest) {
+    "use server"
     const doctorId = req.nextUrl.searchParams.get("doctorId")
     if (doctorId) {
         const doctor = await prisma.doctor.findFirst({
@@ -21,23 +22,4 @@ export async function GET(req: NextRequest) {
         },
     })
     return NextResponse.json({ status: 200, message: "Fetch successful", data: doctors })
-}
-
-export async function POST(req: NextRequest) {
-    const body = await req.json()
-    const { phoneNumber, fullName, poliId, schedule } = body
-    const createDoctor = await prisma.doctor.create({
-        data: {
-            fullName,
-            poliId,
-            phoneNumber,
-            schedule,
-        },
-    })
-
-    if (!createDoctor) {
-        return NextResponse.json({ status: 500, message: "Not able to create doctor..." })
-    }
-
-    return NextResponse.json({ status: 200, message: "Doctor data created succesfully", doctor: createDoctor })
 }
